@@ -1,0 +1,17 @@
+{
+  "name": "library-borrowed-book-tracker",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Library Borrowed Book Tracker - React, Express, Supabase PostgreSQL, Zod, Tailwind CSS",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
+    "dev:server": "npm --prefix server run dev",
+    "dev:client": "npm --prefix client run dev",
+    "install:all": "npm install && npm --prefix server install && npm --prefix client install",
+    "build:client": "npm --prefix client run build",
+    "start:server": "npm --prefix server start"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
