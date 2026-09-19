@@ -18,12 +18,18 @@ const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:5173';
 // Security headers with Helmet
 app.use(helmet());
 
-// CORS configuration: Allow client origin, credentials, and standard headers
+// CORS configuration: Allow client origin, credentials, standard headers, and Vercel domains
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Allow requests with no origin (like mobile apps or curl) or matching CLIENT_URL / local development
-      if (!origin || origin === CLIENT_URL || origin.startsWith('http://localhost:') || origin.startsWith('http://127.0.0.1:')) {
+      // Allow requests with no origin (like mobile apps or curl) or matching CLIENT_URL / local development / Vercel
+      if (
+        !origin ||
+        origin === CLIENT_URL ||
+        origin.startsWith('http://localhost:') ||
+        origin.startsWith('http://127.0.0.1:') ||
+        origin.endsWith('.vercel.app')
+      ) {
         callback(null, true);
       } else {
         callback(new Error('Origin not allowed by CORS'));
@@ -40,7 +46,7 @@ app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true }));
 
 // Request logging in development
-if (process.env.NODE_ENV !== 'production') {
+if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
   app.use(morgan('dev'));
 }
 
@@ -61,11 +67,13 @@ app.use('/api/dashboard', dashboardRoutes);
 app.use(notFoundHandler);
 app.use(errorHandler);
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`🚀 Library Tracker Backend running on port ${PORT}`);
-  console.log(`🌐 Allowed Client URL: ${CLIENT_URL}`);
-  console.log(`📡 Health check available at: http://localhost:${PORT}/api/health`);
-});
+// Start server locally (Vercel invokes the exported app directly)
+if (!process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`🚀 Library Tracker Backend running on port ${PORT}`);
+    console.log(`🌐 Allowed Client URL: ${CLIENT_URL}`);
+    console.log(`📡 Health check available at: http://localhost:${PORT}/api/health`);
+  });
+}
 
 export default app;
